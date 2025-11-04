@@ -1,51 +1,54 @@
-import { Body, Controller, Delete, Get, Param , Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param , Patch, Post, Query } from '@nestjs/common';
+import { StudentService } from './student.service';
+import { CreateStudentDto } from './dto/create-student.dto';
 
 @Controller('student')
 export class StudentController {
-
+    constructor(private readonly studentService: StudentService) {}
 
     @Post() // POST/student
-    createStudent(@Body() studentInfo : object){
-        return studentInfo ; 
+    createStudent(@Body() studentInfo: CreateStudentDto){
+        return this.studentService.createStudent(studentInfo);
     }
 
     @Get()   // GET/student
     getStudent() {
-            return "Getting Student Info"
+        return this.studentService.getStudent();
+    }
+    // Can get student by ID
+
+    @Get('status/:id') // GET/student/status
+    getStudentStatus(@Param('id') id : string ){
+        return this.studentService.getStudentStatus(id);
+    }
+    // Here can apply update status as well. 
+
+    @Get('notification/:id') // GET/student/notification
+    getNotificationSettings(@Param('id') id : string){
+        return this.studentService.getNotificationSettings(id);
     }
 
-    @Get('status') // GET/student/status
-    getStudentStatus(){
-        return "Getting student status"
+    @Patch('name') // PATCH/student/name?id=1&name=NewName
+    updateStudentName(@Query('id') id: string, @Query('name') name: string) {
+        return this.studentService.updateStudentName(id, name);
     }
 
-    @Get('notification') // GET/student/notification
-    getNotificationSettings(){
-        return "Getting Notificaton Settings"
+    @Patch('email') // PATCH/student/email?id=1&email=new@example.com
+    updateStudenEmail(@Query('id') id: string, @Query('email') email: string){
+        return this.studentService.updateStudentEmail(id, email);
     }
 
-
-    @Patch(':id')  // PATCH/student/:id
-    updateStudentName(@Param('id') id : string) { // maybe I have to use query parameters here , id and newname
-        return  `updating user with id:  ${id}` ;
-    }
-
-    @Patch(':email')  // PATCH/student/:email
-    updateStudenEmail(@Param('email') email : string){
-            return email ;
-    }
-
-     @Patch('notification/:state') // PATCH/student/notification/:state
-        updateNotificationSettings(@Param('state') notificationState : boolean){
-        return notificationState; 
+     @Patch('notification') // PATCH/student/notification?id=1&state=true
+        updateNotificationSettings(@Query('id') id: string, @Query('state') state: string){
+        return this.studentService.updateNotificationSettings(id, state === 'true');
     }
      
     @Delete('saved/:eventid') // DELETE/student/saved/:eventId
     deleteSavedEvent(@Param('eventId') eventId: string){
-        return `Deleting Event Id : ${eventId}`
+        return this.studentService.deleteSavedEvent(eventId);
     }
 
-
+  // add events as well
 
 
 
