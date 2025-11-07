@@ -7,3 +7,23 @@
 | **PATCH** | `/v1/me/settings` | Update notification or preference settings.             | `{ "notifications": false, "darkMode": true }` | `{ "message": "Settings updated." }`                           |
 | **GET**   | `/v1/me/status`   | Check student account status (active, suspended, etc.). | —                                              | `{ "status": "active" }`                                       |
 DELETE         /v1/me/saves/:id     Remove saved event
+
+
+1.	Signup 
+-	Name 
+	getName , updateName
+-	Aiub-email
+	Getemail , updateEmail
+-	Stu-Id
+	getStudentbyID , updateStudent
+-	Department
+	getDepartment , updateDepartment
+-	Semester
+	getSemester , updateSemester 
+-	Number
+	getNumber , updateNumber 
+-	password
+	getPassword , changePassword 
+2.	 Login 
+-	Aiub-email
+-	password

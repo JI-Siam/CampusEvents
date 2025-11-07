@@ -1,140 +1,85 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStudentDto } from './dto/create-student.dto';
+import { StudentQueryDto } from './dto/student-query.dto';
+import{Student}  from './interfaces/student-interface'
+import { StudentUpdateDto } from './dto/student-update.dto';
 
 @Injectable()
 export class StudentService {
-  private students: any[] = [
+   private students : Student [] =[
     {
-      id: '1',
-      name: 'John Doe',
-      email: 'john@example.com',
-      studentId: 'STU001',
-      department: 'Computer Science',
-      semester: 5,
-      status: 'active',
-      notificationEnabled: true,
-    },
-    {
-      id: '2',
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      studentId: '22-50585-1',
-      department: 'Business',
-      semester: 3,
-      status: 'active',
-      notificationEnabled: false,
-    },
-  ];
+    name: "Jafir Islam Siam"  , 
+    email : "siam@example.com" , 
+    gender:"Male",
+    studentId: "505741" , 
+    department : "CSE" ,  
+    semester: 8 , 
+    phoneNumber : 669 , 
+    password: "1234" , 
+    notification: true , 
+    status : "Active",
+    savedEvents:[],
+    date:Date.now()
+ } , 
+   ]
 
-  private savedEvents = [
-    { id: '1', studentId: '1', eventId: 'EVT001' },
-    { id: '2', studentId: '1', eventId: 'EVT002' },
-  ];
 
-  createStudent(createStudentDto: CreateStudentDto) {
-    const newStudent = {
-      id: String(this.students.length + 1),
-      ...createStudentDto,
-      status: 'active',
-      notificationEnabled: true,
-    };
-
-    this.students.push(newStudent);
-
+   createStudent(createStudentDto : CreateStudentDto){
+    const newStudent : Student ={
+      ...createStudentDto, 
+      "notification" : true , 
+      "status" : "Active" , 
+      savedEvents:[],
+      date: Date.now(),
+    } 
+    this.students.push(newStudent) ; 
+    const {name , studentId} = newStudent
     return {
-      message: 'Student created successfully',
-      data: newStudent,
-    };
-  }
-
-  getStudent() {
-    return {
-      message: 'Getting Student Info',
-      data: this.students,
-      total: this.students.length,
-    };
-  }
-
-  getStudentStatus(id : string) {
-   const student = this.students.find(s => s.id === id);
-    return {
-      message: 'Getting Student Status ',
-      data: student.status,
-    };
-  }
-
-  getNotificationSettings(id : string ) {
-
-   const student = this.students.find(s => s.id === id);
-
-    return {
-      message: 'Getting Notification Settings',
-      data: student.notificationEnabled,
-    };
-  }
-
-  updateStudentName(id: string, name: string) {
-    const student = this.students.find(s => s.id === id);
-
-    if (!student) {
-      return {
-        statusCode: 404,
-        message: `Student with id ${id} not found`,
-      };
+      message:"New Student Created Successfully" , 
+      student : newStudent , 
+      name : name  , 
+      studentId : studentId
     }
+   }
 
-    const oldName = student.name;
-    student.name = name;
+   getAllStudent(){
+    return this.students 
+   }
 
-    return {
-      message: `Updated student name from ${oldName} to ${name}`,
-      data: student,
-    };
-  }
+   getStudentById(studentId: string){
+     const student = this.students.find((s) => s.studentId === studentId)
+     if(!student) throw new NotFoundException("Student Not Found!!") 
+      return student
+   }
 
-  updateStudentEmail(id: string, email: string) {
-    const student = this.students.find(s => s.id === id);
+   getSpecificStudentFields(query : StudentQueryDto , student : Student){
+     if (!query.fields) return student;
 
-    if (!student) {
-      return {
-        statusCode: 404,
-        message: `Student with id ${id} not found`,
-      };
-    }
+       const fieldList = query.fields.split(',')
+       const studentInfo : any = {}
 
-    const oldEmail = student.email;
-    student.email = email;
+       fieldList.forEach(f => {
+        if(f in student){
+          studentInfo[f] = student[f]
+        }
+       });
 
-    return {
-      message: `Updated student email from ${oldEmail} to ${email}`,
-      data: student,
-    };
-  }
+       return studentInfo
+       }
+   
+   
+   getStudent(studentId: string  , query : StudentQueryDto){
+    const student = this.getStudentById(studentId) 
+    return  this.getSpecificStudentFields(query ,student)
+   }
 
-  updateNotificationSettings(id: string, state: boolean) {
-    const student = this.students.find(s => s.id === id);
+   updateStudent(studentId : string , updatedStudentInfo : StudentUpdateDto){
+    const student = this.getStudentById(studentId) 
+    Object.assign(student,updatedStudentInfo)
+    return student
+   }
+  
+    
+    
+   }
 
-    if (!student) {
-      return {
-        statusCode: 404,
-        message: `Student with id ${id} not found`,
-      };
-    }
-
-    student.notificationEnabled = state;
-
-    return {
-      message: `Notification settings updated to: ${state}`,
-      data: {
-        id: student.id,
-        name: student.name,
-        notificationEnabled: student.notificationEnabled,
-      },
-    };
-  }
-
-  deleteSavedEvent(eventId: string) {
-    // deleting event 
-  }
-
-}
