@@ -23,12 +23,11 @@ export class StudentService {
  } , 
    ]
 
-
    createStudent(createStudentDto : CreateStudentDto){
     const newStudent : Student ={
       ...createStudentDto, 
-      "notification" : true , 
-      "status" : "Active" , 
+      notification : true , 
+      status: "Active" , 
       savedEvents:[],
       date: Date.now(),
     } 
@@ -78,8 +77,33 @@ export class StudentService {
     Object.assign(student,updatedStudentInfo)
     return student
    }
-  
-    
+
+   deleteStudent(id : string){
+     const student= this.getStudentById(id) 
+     // delete the student here . 
+
+   }
+
+   saveEvent(id : string , eventId : string){
+     const student = this.getStudentById(id) 
+     student.savedEvents.push(eventId)
+     return{
+       savedEvents: student.savedEvents
+     }
+   }
+
+   getAllSavedEvents(id : string){
+      const student = this.getStudentById(id) 
+      const {savedEvents} = student
+      return{
+        savedEvents : savedEvents
+      }
+   }  
+
+   removeSavedEvent(id : string , eventId : string){
+     const student = this.getStudentById(id)
+     // logic here
+   }    
     
    }
 
