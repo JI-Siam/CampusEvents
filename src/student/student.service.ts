@@ -14,7 +14,7 @@ export class StudentService {
     studentId: "505741" , 
     department : "CSE" ,  
     semester: 8 , 
-    phoneNumber : 669 , 
+    phoneNumber : "669" , 
     password: "1234" , 
     notification: true , 
     status : "Active",

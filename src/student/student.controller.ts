@@ -3,12 +3,13 @@ import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { StudentQueryDto } from './dto/student-query.dto';
 import { StudentUpdateDto } from './dto/student-update.dto';
+import { StudentValidationPipe } from 'src/common/pipes/student-validation/student-validation.pipe';
 @Controller('students')
 export class StudentController {
     constructor(private readonly studentService : StudentService){}
 
     @Post()
-    createStudent(@Body() newStudent : CreateStudentDto){
+    createStudent(@Body(new StudentValidationPipe()) newStudent : CreateStudentDto){
        return this.studentService.createStudent(newStudent)
     }
 
@@ -30,7 +31,6 @@ export class StudentController {
     UpdateStudent(@Param('id') id : string , @Body() studentInfo : StudentUpdateDto){
         // update the student here - Using put in different case may be more natural. 
     }
-
 
     // can a student delete himself? should this controller be here or in the admin module ? 
 
