@@ -45,6 +45,7 @@ export class StudentController {
        // Events posted are in other modules. 
     }
 
+    /*
     @Post('events/save/:id') 
     saveEvent(@Param('id') id : string , @Query('eventId') eventId : string){
         this.studentService.saveEvent(id , eventId)
@@ -59,6 +60,7 @@ export class StudentController {
     removeSavedEvent(@Param('id') id : string , @Query('eventId') eventId : string){
         this.studentService.removeSavedEvent(id , eventId)
     }
+    */
 
 
 

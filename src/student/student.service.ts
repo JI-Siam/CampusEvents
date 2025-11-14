@@ -1,58 +1,47 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { StudentQueryDto } from './dto/student-query.dto';
-import{Student}  from './interfaces/student-interface'
+import{Student}  from './user.entity'
+
 import { StudentUpdateDto } from './dto/student-update.dto';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class StudentService {
+   constructor(@InjectRepository(Student)private readonly studentRepository : Repository<Student>){}
    private students : Student [] =[
-    {
-    name: "Jafir Islam Siam"  , 
-    email : "siam@example.com" , 
-    gender:"Male",
-    studentId: "505741" , 
-    department : "CSE" ,  
-    semester: 8 , 
-    phoneNumber : "669" , 
-    password: "1234" , 
-    notification: true , 
-    status : "Active",
-    savedEvents:[],
-    date:Date.now()
- } , 
    ]
 
-   createStudent(createStudentDto : CreateStudentDto){
-    const newStudent : Student ={
-      ...createStudentDto, 
-      notification : true , 
-      status: "Active" , 
-      savedEvents:[],
-      date: Date.now(),
-    } 
-    this.students.push(newStudent) ; 
-    const {name , studentId} = newStudent
-    return {
+   async createStudent(studentData : Partial<Student>){
+    const newStudent =   this.studentRepository.create(studentData)
+      newStudent.notification = true 
+      newStudent.status= "Active" 
+      newStudent.date= new Date()
+      await this.studentRepository.save(newStudent)
+        return {
       message:"New Student Created Successfully" , 
-      student : newStudent , 
-      name : name  , 
-      studentId : studentId
+      student : studentData , 
+      name : studentData.name  , 
+      studentId : studentData.studentId
     }
    }
 
-   getAllStudent(){
-    return this.students 
+
+    async getAllStudent(){
+      return this.studentRepository.find()
    }
 
-   getStudentById(studentId: string){
-     const student = this.students.find((s) => s.studentId === studentId)
-     if(!student) throw new NotFoundException("Student Not Found!!") 
-      return student
+   async getStudentById(studentId: string){
+     const student = await this.studentRepository.findOneBy({studentId}) ;
+     if(!student){
+      throw new NotFoundException("Student Not Found!!!")
+     }
+     return student
    }
 
    getSpecificStudentFields(query : StudentQueryDto , student : Student){
-     if (!query.fields) return student;
+     if (!query.fields) return student; // If no specific fields required return all data 
 
        const fieldList = query.fields.split(',')
        const studentInfo : any = {}
@@ -67,8 +56,9 @@ export class StudentService {
        }
    
    
-   getStudent(studentId: string  , query : StudentQueryDto){
-    const student = this.getStudentById(studentId) 
+       
+   async getStudent(studentId: string  , query : StudentQueryDto){
+    const student =await this.getStudentById(studentId) 
     return  this.getSpecificStudentFields(query ,student)
    }
 
@@ -84,6 +74,7 @@ export class StudentService {
 
    }
 
+   /*
    saveEvent(id : string , eventId : string){
      const student = this.getStudentById(id) 
      student.savedEvents.push(eventId)
@@ -104,6 +95,8 @@ export class StudentService {
      const student = this.getStudentById(id)
      // logic here
    }    
+     */
     
    }
 
+ 
