@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param , Patch, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param , Patch, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { StudentQueryDto } from './dto/student-query.dto';
 import { StudentUpdateDto } from './dto/student-update.dto';
 import { StudentValidationPipe } from 'src/common/pipes/student-validation/student-validation.pipe';
+import { StudentEntity } from './student.entity';
 @Controller('students')
 export class StudentController {
     constructor(private readonly studentService : StudentService){}
@@ -18,14 +19,31 @@ export class StudentController {
        return this.studentService.getAllStudent()
     }
 
+     @Get('inactive')
+   async  getInactiveStudents() : Promise<StudentEntity[]>{
+        console.log("Right Route")
+       return await this.studentService.getInactiveStudents()
+    }
+
+    @Get('semester')
+
+    async getStudentBySemester() : Promise<StudentEntity[]> {
+          return await this.studentService.getStudentBySemester()
+    }
+
+
     @Get(':id')
     getStudent(@Param('id') studentId : string , @Query() query : StudentQueryDto){
         return this.studentService.getStudent(studentId , query) 
     }
-    @Patch('update/:id')
-    updateStudentInfo(@Param('id') studentId: string , @Body() updatedInfo: StudentUpdateDto){
-        return this.studentService.updateStudent(studentId , updatedInfo)
+
+   
+
+    @Patch('update/:id') // patch or put ?? 
+    async updateStudentInfo(@Param('id') studentId: string , @Body(new StudentValidationPipe()) updatedInfo: StudentUpdateDto){
+        return await this.studentService.updateStudent(studentId , updatedInfo)
     }
+
 
     @Put(':id')
     UpdateStudent(@Param('id') id : string , @Body() studentInfo : StudentUpdateDto){

@@ -1,17 +1,24 @@
 import { Entity , PrimaryGeneratedColumn , Column, Unique, PrimaryColumn} from "typeorm";
-@Entity()
-export class Student{
-    @Column()
+@Entity('student')
+export class StudentEntity{
+
+    @PrimaryGeneratedColumn({type: 'int' , unsigned:true})
+    id : number
+
+    @Column({type: 'varchar'  , length : 100})
     name : string 
+
     @Column({ unique: true })
      email : string
     @Column()
     gender:string
-    @PrimaryColumn()
+    @Column({unique: true})
     studentId: string 
+
     @Column()
     department : string 
-    @Column()
+    
+    @Column({type:'int' , unsigned: true})
     semester : number
     @Column()
     phoneNumber : string
@@ -19,8 +26,8 @@ export class Student{
     password : string 
     @Column()
     notification: boolean 
-    @Column()
-    status : string 
+    @Column({type : 'enum'  , enum : ['active' , 'inactive'] , default:'active'} )
+    status : 'active' | 'inactive'
     @Column({ type: 'timestamptz' })
     date: Date
 

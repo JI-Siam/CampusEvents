@@ -1,22 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { StudentQueryDto } from './dto/student-query.dto';
-import{Student}  from './user.entity'
+import{StudentEntity}  from './student.entity'
 
 import { StudentUpdateDto } from './dto/student-update.dto';
-import { Repository } from 'typeorm';
+import { LessThan, LessThanOrEqual, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class StudentService {
-   constructor(@InjectRepository(Student)private readonly studentRepository : Repository<Student>){}
-   private students : Student [] =[
+   constructor(@InjectRepository(StudentEntity)private readonly studentRepository : Repository<StudentEntity>){}
+   private students : StudentEntity [] =[
    ]
 
-   async createStudent(studentData : Partial<Student>){
+   async createStudent(studentData : Partial<StudentEntity>){
     const newStudent =   this.studentRepository.create(studentData)
       newStudent.notification = true 
-      newStudent.status= "Active" 
       newStudent.date= new Date()
       await this.studentRepository.save(newStudent)
         return {
@@ -32,7 +31,7 @@ export class StudentService {
       return this.studentRepository.find()
    }
 
-   async getStudentById(studentId: string){
+   async getStudentById(studentId: string): Promise<StudentEntity>{
      const student = await this.studentRepository.findOneBy({studentId}) ;
      if(!student){
       throw new NotFoundException("Student Not Found!!!")
@@ -40,7 +39,7 @@ export class StudentService {
      return student
    }
 
-   getSpecificStudentFields(query : StudentQueryDto , student : Student){
+   getSpecificStudentFields(query : StudentQueryDto , student : StudentEntity){
      if (!query.fields) return student; // If no specific fields required return all data 
 
        const fieldList = query.fields.split(',')
@@ -62,10 +61,61 @@ export class StudentService {
     return  this.getSpecificStudentFields(query ,student)
    }
 
-   updateStudent(studentId : string , updatedStudentInfo : StudentUpdateDto){
-    const student = this.getStudentById(studentId) 
-    Object.assign(student,updatedStudentInfo)
-    return student
+  async updateStudent(studentId : string , updatedStudentInfo :StudentUpdateDto): Promise<StudentEntity>{
+     const student = await this.studentRepository.findOneBy({studentId})
+    const updatedStudent ={...student} 
+
+    console.log("Found Student : " , student)
+    console.log("Updated Initial Student : " , student)
+
+    for(const key in updatedStudentInfo){
+      if(updatedStudentInfo[key] !== undefined){
+         updatedStudent[key] = updatedStudentInfo[key] 
+      }
+    }
+
+    console.log("Updated Student : " , updatedStudent)
+
+    return this.studentRepository.save(updatedStudent)
+
+   }
+
+   async getInactiveStudents() : Promise<StudentEntity[]>{
+    console.log("function running\n")
+    const result = await this.studentRepository.find(
+      {
+      where:{
+          status : "inactive"
+       }
+   })
+   console.log(result) ; 
+
+    if(!result){
+      throw new NotFoundException("No Inactive Student Found")
+    }
+
+    return  result ; 
+
+   }
+
+   async getStudentBySemester(){
+        const result = await this.studentRepository.find({
+          where:{
+            semester: LessThan(8)
+          },
+          select: {
+            studentId : true ,
+            name : true 
+          }
+        })
+
+    if(!result){
+      throw new NotFoundException("No Student with More than {8} semester Found")
+    }   
+
+
+    return result  ; 
+
    }
 
    deleteStudent(id : string){
