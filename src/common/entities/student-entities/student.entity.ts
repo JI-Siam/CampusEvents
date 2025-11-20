@@ -1,18 +1,19 @@
-import { Entity , PrimaryGeneratedColumn , Column, Unique, PrimaryColumn} from "typeorm";
+import { Entity , PrimaryGeneratedColumn , Column, Unique, PrimaryColumn, CreateDateColumn, OneToMany} from "typeorm";
+import { EventSavedEntity } from "./eventSaved.entity";
 @Entity('student')
 export class StudentEntity{
 
-    @PrimaryGeneratedColumn({type: 'int' , unsigned:true})
-    id : number
 
     @Column({type: 'varchar'  , length : 100})
     name : string 
 
     @Column({ unique: true })
      email : string
+
     @Column()
     gender:string
-    @Column({unique: true})
+
+    @PrimaryColumn({unique: true})
     studentId: string 
 
     @Column()
@@ -20,15 +21,23 @@ export class StudentEntity{
     
     @Column({type:'int' , unsigned: true})
     semester : number
+
     @Column()
     phoneNumber : string
+
     @Column()
     password : string 
+
     @Column()
-    notification: boolean 
+    notification: boolean
+
     @Column({type : 'enum'  , enum : ['active' , 'inactive'] , default:'active'} )
     status : 'active' | 'inactive'
-    @Column({ type: 'timestamptz' })
-    date: Date
+
+    @OneToMany(()=> EventSavedEntity, (eventsSaved) => eventsSaved.student )
+    eventsSaved : EventSavedEntity[]
+    
+    @CreateDateColumn()
+    created_at:  Date
 
 }

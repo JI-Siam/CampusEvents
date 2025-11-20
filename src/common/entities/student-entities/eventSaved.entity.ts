@@ -1,0 +1,22 @@
+import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { StudentEntity } from "./student.entity";
+import { EventEntity } from "./event.entity";
+
+@Entity('eventSaved')
+
+export class EventSavedEntity{
+    @PrimaryGeneratedColumn()
+    savedId : number ; 
+
+    // relations 
+    @ManyToOne(()=>StudentEntity , (student) => student.eventsSaved)
+    @JoinColumn({name : "studentId"})
+    student : StudentEntity; 
+
+    @ManyToOne(()=> EventEntity , (event) => event.eventsSaved)
+    @JoinColumn({name : "eventId"})
+    event : EventEntity
+
+    @CreateDateColumn()
+    saved_at : Date
+}

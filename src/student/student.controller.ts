@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, Param , Patch, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { StudentService } from './student.service';
-import { CreateStudentDto } from './dto/create-student.dto';
-import { StudentQueryDto } from './dto/student-query.dto';
-import { StudentUpdateDto } from './dto/student-update.dto';
+import { CreateStudentDto } from '../common/dto/student-dto/create-student.dto';
+import { StudentQueryDto } from '../common/dto/student-dto/student-query.dto';
+import { StudentUpdateDto } from '../common/dto/student-dto/student-update.dto';
 import { StudentValidationPipe } from 'src/common/pipes/student-validation/student-validation.pipe';
-import { StudentEntity } from './student.entity';
+import { StudentEntity } from '../common/entities/student-entities/student.entity';
 @Controller('students')
 export class StudentController {
     constructor(private readonly studentService : StudentService){}
@@ -14,30 +14,34 @@ export class StudentController {
        return this.studentService.createStudent(newStudent)
     }
 
+    @Post('events/save/:id') 
+    saveEvent(@Param('id') id : string , @Query('eventId') eventId : string){
+        return this.studentService.saveEvent(id , eventId)
+    }
+
     @Get()
     getAllStudents(){
        return this.studentService.getAllStudent()
     }
 
-     @Get('inactive')
-   async  getInactiveStudents() : Promise<StudentEntity[]>{
-        console.log("Right Route")
-       return await this.studentService.getInactiveStudents()
+     @Get('events')
+   async getAllEvents(){
+       // Inject the events service class here and then use this to get all the events. 
+       // Events posted are in other modules. 
+
+      return await this.studentService.getAllEvents()
     }
 
-    @Get('semester')
-
-    async getStudentBySemester() : Promise<StudentEntity[]> {
-          return await this.studentService.getStudentBySemester()
+      @Get('events/saved/:id')
+    getAllSavedEvents(@Param('id') id : string){
+        return this.studentService.getAllSavedEvents(id)
     }
 
-
+  
     @Get(':id')
     getStudent(@Param('id') studentId : string , @Query() query : StudentQueryDto){
         return this.studentService.getStudent(studentId , query) 
     }
-
-   
 
     @Patch('update/:id') // patch or put ?? 
     async updateStudentInfo(@Param('id') studentId: string , @Body(new StudentValidationPipe()) updatedInfo: StudentUpdateDto){
@@ -57,23 +61,7 @@ export class StudentController {
         return this.studentService.deleteStudent(id) 
     }
 
-    @Get('events')
-    getAllEvents(){
-       // Inject the events service class here and then use this to get all the events. 
-       // Events posted are in other modules. 
-    }
-
-    /*
-    @Post('events/save/:id') 
-    saveEvent(@Param('id') id : string , @Query('eventId') eventId : string){
-        this.studentService.saveEvent(id , eventId)
-    }
-
-    @Get('events/saved/:id')
-    getAllSavedEvents(@Param('id') id : string){
-        return this.studentService.getAllSavedEvents(id)
-    }
-
+/*
     @Delete('events/saved/delete/:id')
     removeSavedEvent(@Param('id') id : string , @Query('eventId') eventId : string){
         this.studentService.removeSavedEvent(id , eventId)

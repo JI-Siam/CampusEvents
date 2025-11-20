@@ -1,22 +1,30 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateStudentDto } from './dto/create-student.dto';
-import { StudentQueryDto } from './dto/student-query.dto';
-import{StudentEntity}  from './student.entity'
+import { CreateStudentDto } from '../common/dto/student-dto/create-student.dto';
+import { StudentQueryDto } from '../common/dto/student-dto/student-query.dto';
+import{StudentEntity}  from '../common/entities/student-entities/student.entity'
 
-import { StudentUpdateDto } from './dto/student-update.dto';
+import { StudentUpdateDto } from '../common/dto/student-dto/student-update.dto';
 import { LessThan, LessThanOrEqual, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EventEntity } from 'src/common/entities/student-entities/event.entity';
+import { EventSavedEntity } from 'src/common/entities/student-entities/eventSaved.entity';
 
 @Injectable()
 export class StudentService {
-   constructor(@InjectRepository(StudentEntity)private readonly studentRepository : Repository<StudentEntity>){}
+   constructor(@
+    InjectRepository(StudentEntity)
+    private readonly studentRepository : Repository<StudentEntity> , 
+   @InjectRepository(EventEntity)
+  private readonly eventRepository: Repository<EventEntity> , 
+  @InjectRepository(EventSavedEntity) 
+  private readonly eventSavedRepository : Repository<EventSavedEntity>
+){}
+ 
    private students : StudentEntity [] =[
    ]
 
    async createStudent(studentData : Partial<StudentEntity>){
     const newStudent =   this.studentRepository.create(studentData)
-      newStudent.notification = true 
-      newStudent.date= new Date()
       await this.studentRepository.save(newStudent)
         return {
       message:"New Student Created Successfully" , 
@@ -31,7 +39,7 @@ export class StudentService {
       return this.studentRepository.find()
    }
 
-   async getStudentById(studentId: string): Promise<StudentEntity>{
+   async getStudentById(studentId: string) : Promise<StudentEntity>{
      const student = await this.studentRepository.findOneBy({studentId}) ;
      if(!student){
       throw new NotFoundException("Student Not Found!!!")
@@ -54,13 +62,13 @@ export class StudentService {
        return studentInfo
        }
    
-   
        
    async getStudent(studentId: string  , query : StudentQueryDto){
     const student =await this.getStudentById(studentId) 
     return  this.getSpecificStudentFields(query ,student)
    }
 
+   
   async updateStudent(studentId : string , updatedStudentInfo :StudentUpdateDto): Promise<StudentEntity>{
      const student = await this.studentRepository.findOneBy({studentId})
     const updatedStudent ={...student} 
@@ -80,43 +88,7 @@ export class StudentService {
 
    }
 
-   async getInactiveStudents() : Promise<StudentEntity[]>{
-    console.log("function running\n")
-    const result = await this.studentRepository.find(
-      {
-      where:{
-          status : "inactive"
-       }
-   })
-   console.log(result) ; 
 
-    if(!result){
-      throw new NotFoundException("No Inactive Student Found")
-    }
-
-    return  result ; 
-
-   }
-
-   async getStudentBySemester(){
-        const result = await this.studentRepository.find({
-          where:{
-            semester: LessThan(8)
-          },
-          select: {
-            studentId : true ,
-            name : true 
-          }
-        })
-
-    if(!result){
-      throw new NotFoundException("No Student with More than {8} semester Found")
-    }   
-
-
-    return result  ; 
-
-   }
 
    deleteStudent(id : string){
      const student= this.getStudentById(id) 
@@ -124,28 +96,64 @@ export class StudentService {
 
    }
 
-   /*
-   saveEvent(id : string , eventId : string){
-     const student = this.getStudentById(id) 
-     student.savedEvents.push(eventId)
-     return{
-       savedEvents: student.savedEvents
-     }
+   async getAllEvents() : Promise<EventEntity[]>{
+     const allEvents =await this.eventRepository.find()
+     return allEvents; 
    }
 
-   getAllSavedEvents(id : string){
-      const student = this.getStudentById(id) 
-      const {savedEvents} = student
-      return{
-        savedEvents : savedEvents
-      }
+   async getEventById(id : number){
+     const event =  await this.eventRepository.findOneBy({eventId: id})
+     if(!event){
+      throw new NotFoundException("No Event Found !!")
+     }
+     return event ;
+   }
+
+
+   
+   async saveEvent(id : string , eventId : string){
+    const newSavedEvent = new EventSavedEntity(); 
+    newSavedEvent.student = await this.getStudentById(id)
+    newSavedEvent.event = await this.getEventById(Number(eventId)) ; 
+      return await this.eventSavedRepository.save(newSavedEvent) ; 
+   }
+
+
+   async getAllSavedEvents(id : string){
+     const savedEvents = await this.eventSavedRepository.find(
+     { where :
+       {
+        student : {studentId : id}, 
+      } , 
+      relations : ['event']
+    }
+     )
+
+     if(!savedEvents){
+      throw new NotFoundException("No Saved Events Found");
+     }
+
+     return savedEvents; 
    }  
 
-   removeSavedEvent(id : string , eventId : string){
-     const student = this.getStudentById(id)
-     // logic here
+
+   /*
+   async removeSavedEvent(id : string , eventId : string){
+       const removeSavedEvent = await this.eventSavedRepository.delete({
+        where:
+        {
+          student : {studentId : id}
+        }, 
+        {event : {eventId : Number(eventId)}} 
+       })
+
+       if(removeSavedEvent.affected ==0 ){
+         throw new NotFoundException ("No Saved Events Found to Delete") ; 
+       }
+
+       return removeSavedEvent;
    }    
-     */
+*/
     
    }
 
