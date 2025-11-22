@@ -1,0 +1,29 @@
+| Method    | Endpoint          | Description                                             | Body / Params                                  | Example Response                                               |
+| --------- | ----------------- | ------------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------- |
+| **GET**   | `/v1/me`          | Get the student’s basic profile information.            | —                                              | `{ "id": 1, "name": "John Doe", "email": "john@example.com" }` |
+| **PATCH** | `/v1/me/name`     | Update the student’s name.                              | `{ "name": "Jane Doe" }`                       | `{ "message": "Name updated successfully." }`                  |
+| **PATCH** | `/v1/me/email`    | Update the student’s email address.                     | `{ "email": "jane@example.com" }`              | `{ "message": "Email updated successfully." }`                 |
+| **GET**   | `/v1/me/settings` | Retrieve current notification/preferences settings.     | —                                              | `{ "notifications": true, "darkMode": false }`                 |
+| **PATCH** | `/v1/me/settings` | Update notification or preference settings.             | `{ "notifications": false, "darkMode": true }` | `{ "message": "Settings updated." }`                           |
+| **GET**   | `/v1/me/status`   | Check student account status (active, suspended, etc.). | —                                              | `{ "status": "active" }`                                       |
+DELETE         /v1/me/saves/:id     Remove saved event
+
+
+1.	Signup 
+-	Name 
+	getName , updateName
+-	Aiub-email
+	Getemail , updateEmail
+-	Stu-Id
+	getStudentbyID , updateStudent
+-	Department
+	getDepartment , updateDepartment
+-	Semester
+	getSemester , updateSemester 
+-	Number
+	getNumber , updateNumber 
+-	password
+	getPassword , changePassword 
+2.	 Login 
+-	Aiub-email
+-	password
