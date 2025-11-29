@@ -19,7 +19,7 @@ export class AdminController {
             return this.studentService.saveEvent(id , eventId)
         }
     
-        @Get()
+        @Get('students')
         getAllStudents(){
            return this.studentService.getAllStudent()
         }
