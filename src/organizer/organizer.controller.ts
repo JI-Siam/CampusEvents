@@ -10,6 +10,11 @@ import { EventValidationPipe } from '../common/pipes/organizer-validation/event-
 export class OrganizerController {
     constructor(private readonly service: OrganizerService) { }
 
+    @Get('a')
+    getG(){
+        return "Hello Organizer";
+    }
+
     // 1. Create event
     @Post('event')
     createEvent(@Body(EventValidationPipe) dto: CreateEventDto) {
