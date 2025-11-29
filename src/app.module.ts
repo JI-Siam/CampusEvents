@@ -4,19 +4,25 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { StudentModule } from './student/student.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { StudentModule } from './student/student.module';
+import { AdminModule } from './admin/admin.module';
+import { OrganizerModule } from './organizer/organizer.module';
+import { AuthModule } from './common/auth/auth.module';
 
 @Module({
   imports: [
-     ConfigModule.forRoot() , 
-     TypeOrmModule.forRoot({
-      type:'postgres' , 
-      url: process.env.DATABASE_URL, 
-      autoLoadEntities:true, 
-      synchronize:true
-     }), 
-     StudentModule
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: process.env.DATABASE_URL,
+      autoLoadEntities: true,
+      synchronize: true
+    }),
+    AdminModule,
+    StudentModule,
+    OrganizerModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
