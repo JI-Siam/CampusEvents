@@ -10,6 +10,7 @@ import { EventSavedEntity } from 'src/common/entities/student-entities/eventSave
 @Module({
   imports:[TypeOrmModule.forFeature([StudentEntity , EventEntity , EventSavedEntity])] , 
   controllers: [StudentController],
-  providers: [StudentService]
+  providers: [StudentService],
+  exports: [StudentService],
 })
 export class StudentModule {}
