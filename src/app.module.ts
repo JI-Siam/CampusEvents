@@ -1,28 +1,43 @@
-import { Module } from '@nestjs/common';
+
 // @ts-ignore: temporary fix for "Module '@nestjs/config' has no exported member 'ConfigModule'"
 // If possible, update @nestjs/config types or package to resolve this properly.
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { StudentModule } from './student/student.module';
-import { AdminModule } from './admin/admin.module';
-import { OrganizerModule } from './organizer/organizer.module';
-import { AuthModule } from './common/auth/auth.module';
+import { AuthModule } from './auth/auth/auth.module';
+import { Module } from '@nestjs/common';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: process.env.DATABASE_URL,
-      autoLoadEntities: true,
-      synchronize: true
-    }),
-    AdminModule,
-    StudentModule,
-    OrganizerModule,
-    AuthModule
+
+      ConfigModule.forRoot(
+       {
+        isGlobal : true 
+      }
+     ) , 
+
+     MailerModule.forRoot({
+      transport: {
+      host: 'smtp.gmail.com',
+      port: 465,
+      ignoreTLS: true,
+      secure: true,
+      auth: {
+      user: 'jafirislam10@gmail.com',
+      pass: process.env.SMTP_PASSWORD
+      },
+      }
+      }) , 
+
+     TypeOrmModule.forRoot({
+      type:'postgres' , 
+      url: process.env.DATABASE_URL, 
+      autoLoadEntities:true, 
+      synchronize:true
+     }), 
+     StudentModule, AuthModule , 
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -22,9 +22,11 @@ export class StudentValidationPipe implements PipeTransform {
       */
 
 
-      if (value.email !== undefined) {
+      if (value.email !== undefined ) {
         value.email = value.email.trim()
-        if(!value.email.endsWith('@student.aiub.edu') || !value.email.startsWith(value.studentId)){
+        const id = value.email.split('@')[0]; 
+        console.log(id) ; 
+        if(!value.email.endsWith('@student.aiub.edu') || value.studentId !== id){
           errors.push(("Invalid Email - must be your_id@student.aiub.edu "))
         }
       }

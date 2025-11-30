@@ -28,7 +28,7 @@ export class StudentEntity{
     @Column()
     password : string 
 
-    @Column()
+    @Column({default:true})
     notification: boolean
 
     @Column({type : 'enum'  , enum : ['active' , 'inactive'] , default:'active'} )
