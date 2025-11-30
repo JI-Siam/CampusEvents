@@ -11,10 +11,12 @@ import { EventSavedEntity } from 'src/common/entities/student-entities/eventSave
 import { StudentLoginDto } from 'src/common/dto/student-dto/student-login.dto';
 import { AuthService } from 'src/auth/auth/auth.service';
 import { generate } from 'rxjs';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class StudentService {
    constructor(
+    private readonly mailerService:MailerService, 
      private readonly authService: AuthService, 
     @InjectRepository(StudentEntity)
     private readonly studentRepository : Repository<StudentEntity> , 
@@ -23,13 +25,18 @@ export class StudentService {
   @InjectRepository(EventSavedEntity) 
   private readonly eventSavedRepository : Repository<EventSavedEntity>
 ){}
- 
+
 
    async createStudent(studentData : CreateStudentDto){
      const hashedPassword= await this.authService.hashPassword(studentData.password) ; 
      studentData.password = hashedPassword; 
     const newStudent =   this.studentRepository.create(studentData)
       await this.studentRepository.save(newStudent)
+      await this.mailerService.sendMail({
+        to: `${studentData.email}`,
+        subject: "Successfull Account Creation",
+        text: "Thanks for Registering , Wish You a Good Luck"
+        });
         return {
       message:"New Student Created Successfully" , 
       student : studentData , 
@@ -168,23 +175,22 @@ export class StudentService {
    }  
 
 
-   /*
+   
    async removeSavedEvent(id : string , eventId : string){
-       const removeSavedEvent = await this.eventSavedRepository.delete({
-        where:
-        {
-          student : {studentId : id}
-        }, 
-        {event : {eventId : Number(eventId)}} 
+       const removedSavedEvent = await this.eventSavedRepository.delete({
+          student : {studentId : id}, 
+          event : {eventId : Number(eventId)}
        })
 
-       if(removeSavedEvent.affected ==0 ){
+
+       if(removedSavedEvent.affected ==0 ){
          throw new NotFoundException ("No Saved Events Found to Delete") ; 
        }
 
-       return removeSavedEvent;
+       return {
+        message : `Event with eventId: ${eventId} removed successfully`
+       };
    }    
-*/
     
    }
 

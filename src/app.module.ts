@@ -8,21 +8,37 @@ import { StudentModule } from './student/student.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth/auth.module';
 import { Module } from '@nestjs/common';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
-     ConfigModule.forRoot(
+
+      ConfigModule.forRoot(
        {
         isGlobal : true 
       }
      ) , 
+
+     MailerModule.forRoot({
+      transport: {
+      host: 'smtp.gmail.com',
+      port: 465,
+      ignoreTLS: true,
+      secure: true,
+      auth: {
+      user: 'jafirislam10@gmail.com',
+      pass: process.env.SMTP_PASSWORD
+      },
+      }
+      }) , 
+
      TypeOrmModule.forRoot({
       type:'postgres' , 
       url: process.env.DATABASE_URL, 
       autoLoadEntities:true, 
       synchronize:true
      }), 
-     StudentModule, AuthModule
+     StudentModule, AuthModule , 
   ],
   controllers: [AppController],
   providers: [AppService],

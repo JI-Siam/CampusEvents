@@ -77,16 +77,12 @@ export class StudentController {
         return this.studentService.deleteStudent(id) 
     }
 
-/*
+
+    @UseGuards(SupabaseAuthGuard)
     @Delete('events/saved/delete/:id')
-    removeSavedEvent(@Param('id') id : string , @Query('eventId') eventId : string){
-        this.studentService.removeSavedEvent(id , eventId)
+     async removeSavedEvent(@Param('id') id : string , @Query('eventId') eventId : string){
+       return await this.studentService.removeSavedEvent(id , eventId)
     }
-    */
-
-
-
-
 
 
 
