@@ -39,7 +39,6 @@ export class StudentController {
    async getAllEvents(){
        // Inject the events service class here and then use this to get all the events. 
        // Events posted are in other modules. 
-
       return await this.studentService.getAllEvents()
     }
 

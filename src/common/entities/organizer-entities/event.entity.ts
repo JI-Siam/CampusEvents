@@ -1,9 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { EventSavedEntity } from '../student-entities/eventSaved.entity';
 
 @Entity('events_table')
 export class Event {
   @PrimaryGeneratedColumn()
-  id: number;
+  eventId: number;
 
   @Column()
   title: string;
@@ -16,4 +17,9 @@ export class Event {
 
   @Column()
   location: string;
+
+   @OneToMany(()=> EventSavedEntity , (eventSaved)=> eventSaved.event)
+    eventsSaved : EventSavedEntity[]
+
+
 }
