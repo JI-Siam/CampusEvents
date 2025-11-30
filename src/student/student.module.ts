@@ -11,6 +11,7 @@ import { AuthModule } from 'src/auth/auth/auth.module';
 @Module({
   imports:[TypeOrmModule.forFeature([StudentEntity , EventEntity , EventSavedEntity]) , AuthModule] , 
   controllers: [StudentController],
-  providers: [StudentService]
+  providers: [StudentService],
+  exports: [StudentService],
 })
 export class StudentModule {}
