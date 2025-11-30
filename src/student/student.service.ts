@@ -4,7 +4,7 @@ import { StudentQueryDto } from '../common/dto/student-dto/student-query.dto';
 import { StudentEntity } from '../common/entities/student-entities/student.entity'
 
 import { StudentUpdateDto } from '../common/dto/student-dto/student-update.dto';
-import { LessThan, LessThanOrEqual, MoreThan, Repository } from 'typeorm';
+import { Entity, LessThan, LessThanOrEqual, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEntity } from 'src/common/entities/student-entities/event.entity';
 import { EventSavedEntity } from 'src/common/entities/student-entities/eventSaved.entity';
@@ -12,6 +12,7 @@ import { StudentLoginDto } from 'src/common/dto/student-dto/student-login.dto';
 import { AuthService } from 'src/auth/auth/auth.service';
 import { generate } from 'rxjs';
 import { MailerService } from '@nestjs-modules/mailer';
+import { Event } from 'src/common/entities/organizer-entities/event.entity';
 
 @Injectable()
 export class StudentService {
@@ -20,8 +21,8 @@ export class StudentService {
      private readonly authService: AuthService, 
     @InjectRepository(StudentEntity)
     private readonly studentRepository : Repository<StudentEntity> , 
-   @InjectRepository(EventEntity)
-  private readonly eventRepository: Repository<EventEntity> , 
+   @InjectRepository(Event)
+  private readonly eventRepository: Repository<Event> , 
   @InjectRepository(EventSavedEntity) 
   private readonly eventSavedRepository : Repository<EventSavedEntity>
 ){}
@@ -134,7 +135,7 @@ export class StudentService {
 
   }
 
-  async getAllEvents(): Promise<EventEntity[]> {
+  async getAllEvents(): Promise<Event[]> {
     const allEvents = await this.eventRepository.find()
     return allEvents;
   }
@@ -195,5 +196,5 @@ export class StudentService {
     
    }
 
-}
+
 

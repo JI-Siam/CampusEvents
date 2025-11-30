@@ -4,10 +4,12 @@
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { StudentModule } from './student/student.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth/auth.module';
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { OrganizerModule } from './organizer/organizer.module';
 
 @Module({
   imports: [
@@ -37,7 +39,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
       autoLoadEntities:true, 
       synchronize:true
      }), 
-     StudentModule, AuthModule , 
+     StudentModule, AuthModule , OrganizerModule
   ],
   controllers: [AppController],
   providers: [AppService],
