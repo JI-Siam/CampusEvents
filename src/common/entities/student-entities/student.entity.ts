@@ -1,4 +1,4 @@
-import { Entity , PrimaryGeneratedColumn , Column, Unique, PrimaryColumn, CreateDateColumn, OneToMany, ManyToMany} from "typeorm";
+import { Entity , PrimaryGeneratedColumn , Column, Unique, PrimaryColumn, CreateDateColumn, OneToMany, ManyToMany, JoinTable} from "typeorm";
 import { EventSavedEntity } from "./eventSaved.entity";
 import { EventEntity } from "../organizer-entities/event.entity";
 @Entity('student')
@@ -42,6 +42,7 @@ export class StudentEntity{
     created_at:  Date
 
     @ManyToMany(()=> EventEntity , (event) => event.students)
+    @JoinTable({name : 'student_event_join'})
     events : EventEntity[] ; 
 
 }

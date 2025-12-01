@@ -32,7 +32,6 @@ export class EventEntity {
     eventsSaved : EventSavedEntity[]
 
   @ManyToMany(()=> StudentEntity , (student) => student.events)
-  @JoinTable()
       students: StudentEntity[];
 
 }

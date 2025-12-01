@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
 import { CreateStudentDto } from '../common/dto/student-dto/create-student.dto';
 import { StudentQueryDto } from '../common/dto/student-dto/student-query.dto';
 import { StudentEntity } from '../common/entities/student-entities/student.entity'
@@ -73,6 +73,51 @@ export class StudentService {
         }
    }
 
+   async joinEvent(studentId : string , eventId : string){
+       const student = await this.studentRepository.findOne({
+    where: { studentId },
+    relations: ['events'],
+  });
+
+  const event = await this.eventRepository.findOne({
+    where: { eventId : Number(eventId)}
+  });
+
+  if (!student || !event) {
+    throw new NotFoundException('Student or event not found');
+  }
+
+  const alreadyJoined = student.events.some(e => e.eventId === Number(eventId));
+
+  if (alreadyJoined) {
+    throw new BadRequestException('Already joined');
+  }
+
+  student.events.push(event);
+  await this.studentRepository.save(student) ; 
+
+  return {
+    message: `Student ${student.studentId} joining event ${event.eventTitle}`
+  }
+   }
+
+
+   async getJoiningEvents(studentId : string){
+      const student = await this.studentRepository.findOne({
+    where: { studentId },
+    relations: ['events'],
+  });
+
+  if(!student){
+    throw new NotFoundException("Student Not Found !!") ; 
+  }
+
+  return student.events ; 
+   }
+
+   async markFavClub(studentId : string , clubId : string){
+       
+   }
 
   async getAllStudent() {
     return this.studentRepository.find()
@@ -123,7 +168,7 @@ export class StudentService {
 
     console.log("Updated Student : ", updatedStudent)
 
-    return this.studentRepository.save(updatedStudent)
+    return await this.studentRepository.save(updatedStudent)
 
   }
 
