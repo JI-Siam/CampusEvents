@@ -1,19 +1,27 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { ClubEntity } from 'src/common/entities/admin-entities/club.entity';
 
 @Entity('events_table')
-export class Event {
+export class EventEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  eventId: number;
 
   @Column()
-  title: string;
+  eventTitle: string;
 
   @Column()
-  description: string;
+  eventDescription: string;
 
   @Column()
-  date: string;
+  eventDate: string;
 
   @Column()
-  location: string;
+  eventLocation: string;
+
+  @ManyToOne(() => ClubEntity, club => club.events, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'clubId' })
+  clubs: ClubEntity;
+
+  @Column()
+  clubId: number;
 }
