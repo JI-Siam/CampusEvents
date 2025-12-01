@@ -1,5 +1,6 @@
-import { Entity , PrimaryGeneratedColumn , Column, Unique, PrimaryColumn, CreateDateColumn, OneToMany} from "typeorm";
+import { Entity , PrimaryGeneratedColumn , Column, Unique, PrimaryColumn, CreateDateColumn, OneToMany, ManyToMany} from "typeorm";
 import { EventSavedEntity } from "./eventSaved.entity";
+import { EventEntity } from "../organizer-entities/event.entity";
 @Entity('student')
 export class StudentEntity{
 
@@ -28,7 +29,7 @@ export class StudentEntity{
     @Column()
     password : string 
 
-    @Column()
+    @Column({default:true})
     notification: boolean
 
     @Column({type : 'enum'  , enum : ['active' , 'inactive'] , default:'active'} )
@@ -39,5 +40,8 @@ export class StudentEntity{
     
     @CreateDateColumn()
     created_at:  Date
+
+    @ManyToMany(()=> EventEntity , (event) => event.students)
+    events : EventEntity[] ; 
 
 }

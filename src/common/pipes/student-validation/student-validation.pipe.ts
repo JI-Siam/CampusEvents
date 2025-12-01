@@ -10,21 +10,11 @@ export class StudentValidationPipe implements PipeTransform {
 
      const errors : string[] =[]
 
-     /*
-      if (value.name !== undefined) {
-        const studentNameRegex = /^[a-z A-Z]+$/
-        value.name = value.name.trim()
-
-        if(value.name.length < 3  || !studentNameRegex.test(value.name)){
-            errors.push("Invalid Name - must contain Alphabets only and atleast 3 characters")
-        }
-      }
-      */
-
-
-      if (value.email !== undefined) {
+      if (value.email !== undefined ) {
         value.email = value.email.trim()
-        if(!value.email.endsWith('@student.aiub.edu') || !value.email.startsWith(value.studentId)){
+        const id = value.email.split('@')[0]; 
+        console.log(id) ; 
+        if(!value.email.endsWith('@student.aiub.edu') || value.studentId !== id){
           errors.push(("Invalid Email - must be your_id@student.aiub.edu "))
         }
       }
@@ -50,14 +40,6 @@ export class StudentValidationPipe implements PipeTransform {
 
       }
 
-      if (value.semester !== undefined) {
-      }
-
-      if (value.phoneNumber !== undefined) {
-      }
-
-      if (value.password !== undefined) {
-      }
       console.log(errors.length)
 
       if(errors.length >=1 ){

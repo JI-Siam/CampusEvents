@@ -1,16 +1,29 @@
-import { IsEmail, IsOptional, IsString, Length } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsDateString, MinLength, IsPhoneNumber, IsInt } from 'class-validator';
 
 export class UpdateOrganizerDto {
+  
   @IsString()
   @IsOptional()
-  name?: string;
+  organizerName?: string;
 
   @IsEmail()
   @IsOptional()
   email?: string;
 
-  @IsString()
-  @Length(11, 11)
+  @IsPhoneNumber()
   @IsOptional()
   phone?: string;
+
+  @IsDateString()
+  @IsOptional()
+  dob?: string;
+
+  @IsString()
+  @MinLength(4)
+  @IsOptional()
+  password?: string;
+
+  // @IsInt()
+  // @IsOptional()
+  // adminId?: number;
 }

@@ -1,5 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, ManyToOne, JoinColumn, JoinTable } from 'typeorm';
 import { ClubEntity } from 'src/common/entities/admin-entities/club.entity';
+import { EventSavedEntity } from '../student-entities/eventSaved.entity';
+import { StudentEntity } from '../student-entities/student.entity';
 
 @Entity('events_table')
 export class EventEntity {
@@ -24,4 +26,13 @@ export class EventEntity {
 
   @Column()
   clubId: number;
+  location: string;
+
+   @OneToMany(()=> EventSavedEntity , (eventSaved)=> eventSaved.event)
+    eventsSaved : EventSavedEntity[]
+
+  @ManyToMany(()=> StudentEntity , (student) => student.events)
+  @JoinTable()
+      students: StudentEntity[];
+
 }

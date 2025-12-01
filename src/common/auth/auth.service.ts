@@ -22,11 +22,6 @@ export class AuthService {
 
     const hashedPassword = await BcryptHelper.hashPassword(dto.password);
 
-    // const organizer = this.organizerRepo.create({
-    //   organizerEmail: dto.email,
-    //   organizerPassword: hashedPassword,
-    // });
-
     const organizer = this.organizerRepo.create({
       organizerName: dto.organizerName,
       organizerEmail: dto.email,

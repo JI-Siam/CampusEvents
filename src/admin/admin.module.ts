@@ -12,9 +12,8 @@ import { AuthModule } from 'src/common/auth/admin-auth/auth.module';
   imports: [
     StudentModule,
     AuthModule,
-    TypeOrmModule.forFeature([OrganizerEntity,
-      ClubEntity,
-      AdminEntity])],
+    TypeOrmModule.forFeature([OrganizerEntity, ClubEntity, AdminEntity])
+  ],
   controllers: [AdminController],
   providers: [AdminService]
 })

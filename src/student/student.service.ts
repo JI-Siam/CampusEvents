@@ -1,37 +1,77 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
 import { CreateStudentDto } from '../common/dto/student-dto/create-student.dto';
 import { StudentQueryDto } from '../common/dto/student-dto/student-query.dto';
 import { StudentEntity } from '../common/entities/student-entities/student.entity'
 
 import { StudentUpdateDto } from '../common/dto/student-dto/student-update.dto';
-import { LessThan, LessThanOrEqual, MoreThan, Repository } from 'typeorm';
+import { Entity, LessThan, LessThanOrEqual, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EventEntity } from 'src/common/entities/student-entities/event.entity';
 import { EventSavedEntity } from 'src/common/entities/student-entities/eventSaved.entity';
+import { StudentLoginDto } from 'src/common/dto/student-dto/student-login.dto';
+import { AuthService } from 'src/auth/auth/auth.service';
+import { generate } from 'rxjs';
+import { MailerService } from '@nestjs-modules/mailer';
+import { EventEntity } from 'src/common/entities/organizer-entities/event.entity';
+import { title } from 'process';
 
 @Injectable()
 export class StudentService {
-  constructor(
+   constructor(
+    private readonly mailerService:MailerService, 
+     private readonly authService: AuthService, 
     @InjectRepository(StudentEntity)
-  private readonly studentRepository: Repository<StudentEntity>,
-    @InjectRepository(EventEntity)
-    private readonly eventRepository: Repository<EventEntity>,
-    @InjectRepository(EventSavedEntity)
-    private readonly eventSavedRepository: Repository<EventSavedEntity>
-  ) { }
+    private readonly studentRepository : Repository<StudentEntity> , 
+   @InjectRepository(EventEntity)
+  private readonly eventRepository: Repository<EventEntity> , 
+  @InjectRepository(EventSavedEntity) 
+  private readonly eventSavedRepository : Repository<EventSavedEntity>
+){}
+ 
 
-  private students: StudentEntity[] = []
-
-  async createStudent(studentData: Partial<StudentEntity>) {
-    const newStudent = this.studentRepository.create(studentData)
-    await this.studentRepository.save(newStudent)
-    return {
-      message: "New Student Created Successfully",
-      student: studentData,
-      name: studentData.name,
-      studentId: studentData.studentId
+   async createStudent(studentData : CreateStudentDto){
+     const hashedPassword= await this.authService.hashPassword(studentData.password) ; 
+     studentData.password = hashedPassword; 
+    const newStudent =   this.studentRepository.create(studentData)
+      await this.studentRepository.save(newStudent)
+      await this.mailerService.sendMail({
+        to: `${studentData.email}`,
+        subject: "Successfull Account Creation",
+        text: "Thanks for Registering , Wish You a Good Luck"
+        });
+        return {
+      message:"New Student Created Successfully" , 
+      student : studentData , 
+      name : studentData.name  , 
+      studentId : studentData.studentId
     }
   }
+
+   async loginStudent(studentLoginDto : StudentLoginDto){
+     const student =  await this.studentRepository.findOneBy({email :studentLoginDto.email}) ; 
+     if(!student){
+        throw new NotFoundException("Student Not Found !!") ; 
+     }
+
+     const {name , studentId, email , password} = student; 
+
+     const rightPass =await this.authService.comparePassword(studentLoginDto.password , password) ; 
+
+     if(!rightPass){
+       throw new UnauthorizedException("Invalid Password!!");
+     }
+
+     const token =  this.authService.generateToken({
+         id: studentId , 
+         email : email , 
+         name: name
+      }) ;
+
+      return{
+        message: 'Login Successful' , 
+        token , 
+        student : student
+        }
+   }
 
 
   async getAllStudent() {
@@ -109,12 +149,32 @@ export class StudentService {
   }
 
 
-
   async saveEvent(id: string, eventId: string) {
+
+        const duplicate = await this.eventSavedRepository.findOne({
+      where: {  
+        event: {eventId : Number(eventId)} , 
+        student: {studentId : id
+      }   
+      } 
+    }) ; 
+
+    if(duplicate){
+      throw new UnprocessableEntityException("Event Saved Already!!") ; 
+    }
+    
     const newSavedEvent = new EventSavedEntity();
     newSavedEvent.student = await this.getStudentById(id)
     newSavedEvent.event = await this.getEventById(Number(eventId));
-    return await this.eventSavedRepository.save(newSavedEvent);
+     await this.eventSavedRepository.save(newSavedEvent);
+     return {
+      message: "Event Saved Successfully!!" , 
+       id : newSavedEvent.savedId , 
+       studentId : newSavedEvent.student.studentId , 
+       eventId : newSavedEvent.event.eventId , 
+       title : newSavedEvent.event.eventTitle, 
+       saved_at : newSavedEvent.saved_at
+     }
   }
 
 
@@ -128,32 +188,31 @@ export class StudentService {
         relations: ['event']
       }
     )
-
     if (!savedEvents) {
       throw new NotFoundException("No Saved Events Found");
     }
-
     return savedEvents;
   }
 
 
-  /*
-  async removeSavedEvent(id : string , eventId : string){
-      const removeSavedEvent = await this.eventSavedRepository.delete({
-       where:
-       {
-         student : {studentId : id}
-       }, 
-       {event : {eventId : Number(eventId)}} 
-      })
+   
+   async removeSavedEvent(id : string , eventId : string){
+       const removedSavedEvent = await this.eventSavedRepository.delete({
+          student : {studentId : id}, 
+          event : {eventId : Number(eventId)}
+       })
 
-      if(removeSavedEvent.affected ==0 ){
-        throw new NotFoundException ("No Saved Events Found to Delete") ; 
-      }
 
-      return removeSavedEvent;
-  }    
-*/
+       if(removedSavedEvent.affected ==0 ){
+         throw new NotFoundException ("No Saved Events Found to Delete") ; 
+       }
 
-}
+       return {
+        message : `Event with eventId: ${eventId} removed successfully`
+       };
+   }    
+    
+   }
+
+
 

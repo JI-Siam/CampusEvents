@@ -1,6 +1,6 @@
 import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { StudentEntity } from "./student.entity";
-import { EventEntity } from "./event.entity";
+import { EventEntity } from "../organizer-entities/event.entity"; 
 
 @Entity('eventSaved')
 
@@ -15,7 +15,7 @@ export class EventSavedEntity{
 
     @ManyToOne(()=> EventEntity , (event) => event.eventsSaved)
     @JoinColumn({name : "eventId"})
-    event : EventEntity
+    event : EventEntity;
 
     @CreateDateColumn()
     saved_at : Date

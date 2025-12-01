@@ -12,7 +12,7 @@ export class AuthService {
   constructor(
     @InjectRepository(AdminEntity) private adminRepo: Repository<AdminEntity>,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async register(dto: RegisterAdminDto) {
     const exists = await this.adminRepo.findOne({ where: { adminEmail: dto.email } });
@@ -22,10 +22,15 @@ export class AuthService {
 
     const hashedPassword = await BcryptHelper.hashPassword(dto.password);
 
-    const admin = this.adminRepo.create({
-      adminEmail: dto.email,
-      adminPassword: hashedPassword,
-    });
+      const admin = this.adminRepo.create({
+        adminName: dto.adminName,
+        adminEmail: dto.email,
+        adminPhone: dto.phone,
+        adminGender: dto.gender,
+        adminDob: dto.dob,
+        adminJoiningDate: dto.joiningDate,
+        adminPassword: hashedPassword,
+      });
 
     await this.adminRepo.save(admin);
 

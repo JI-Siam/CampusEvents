@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrganizerEntity } from '../common/entities/admin-entities/organizer.entity';
+import { CreateOrganizerDto } from 'src/common/dto/admin-dto/create-organizer.dto';
+import { UpdateOrganizerDto } from 'src/common/dto/admin-dto/update-organizer.dto';
 
 @Injectable()
 export class AdminService {
@@ -10,32 +12,48 @@ export class AdminService {
         private repo: Repository<OrganizerEntity>,
     ) { }
 
+    async createOrganizer(dto: CreateOrganizerDto) {
+        const organizer = this.repo.create(dto);
+        return this.repo.save(organizer);
+    }
+
     async findAll() {
         return this.repo.find();
     }
 
-    findOne(id: number) {
-        return this.repo.findOne({ where: { organizerId :id} });
+    async findOneById(id: number) {
+        const organizer = await this.repo.findOne({ where: { organizerId: id } });
+        if (!organizer) {
+            throw new HttpException('Organizer not found', HttpStatus.NOT_FOUND);
+        }
+        return organizer;
     }
 
-    findByPhone(phone: string) {
-        return this.repo.findOne({ where: { organizerPhone : phone } });
+    async findByPhone(phone: string) {
+        const organizer = await this.repo.findOne({ where: { organizerPhone: phone } });
+        if (!organizer) {
+            throw new HttpException('Organizer not found', HttpStatus.NOT_FOUND);
+        }
+        return organizer;
     }
 
-    findByEmail(email: string){
-
+    async updateOrganizer(id: number, dto: UpdateOrganizerDto) {
+        await this.repo.update(id, dto);
+        return this.findOneById(id);
     }
 
-    create(data: Partial<OrganizerEntity>) {
-        const organizer = this.repo.create(data);
-        return this.repo.save(organizer);
+    async patchOrganizer(id: number, dto: UpdateOrganizerDto) {
+        await this.repo.update(id, dto);
+        return this.findOneById(id);
     }
 
-    update(id: number, data: Partial<OrganizerEntity>) {
-        return this.repo.update(id, data);
-    }
+    async removeOrganizer(id: number) {
+        const result = await this.repo.delete(id);
 
-    remove(id: number) {
-        return this.repo.delete(id);
+        if (!result.affected) {
+            throw new HttpException('Organizer not found', HttpStatus.NOT_FOUND);
+        }
+
+        return { message: 'Organizer deleted successfully' };
     }
 }
