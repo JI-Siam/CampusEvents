@@ -29,6 +29,20 @@ export class StudentController {
     }
 
     @UseGuards(SupabaseAuthGuard)
+    @Post('events/markjoining/:id') 
+    joinEvent (@Param('id') studentId : string , @Query('eventId') eventId : string ){
+      return this.studentService.joinEvent(studentId , eventId) ; 
+    }
+
+
+    @UseGuards(SupabaseAuthGuard)
+    @Post('club/markfavourite/:id') 
+    markFavClub (@Param('id') studentId : string , @Query('clubId') clubId : string ){
+      return this.studentService. markFavClub(studentId , clubId) ; 
+    }
+
+
+    @UseGuards(SupabaseAuthGuard)
     @Get()
     getAllStudents(){
        return this.studentService.getAllStudent()
@@ -48,6 +62,12 @@ export class StudentController {
         return this.studentService.getAllSavedEvents(id)
     }
 
+      @UseGuards(SupabaseAuthGuard)
+    @Get('events/joining/:id') 
+    getJoiningEvents (@Param('id') studentId : string ){
+      return this.studentService.getJoiningEvents(studentId) ; 
+    }
+
   
       @UseGuards(SupabaseAuthGuard)
     @Get(':id')
@@ -58,7 +78,7 @@ export class StudentController {
       @UseGuards(SupabaseAuthGuard)
     @Patch('update/:id') // patch or put ?? 
     async updateStudentInfo(@Param('id') studentId: string , @Body(new StudentValidationPipe()) updatedInfo: StudentUpdateDto){
-        return await this.studentService.updateStudent(studentId , updatedInfo)
+       return await this.studentService.updateStudent(studentId , updatedInfo) ; 
     }
 
 
@@ -73,7 +93,7 @@ export class StudentController {
      @UseGuards(SupabaseAuthGuard)
     @Delete(':id')
     deleteStudent(@Param('id') id : string) {
-        return this.studentService.deleteStudent(id) 
+        return this.studentService.deleteStudent(id) ;
     }
 
 
