@@ -6,7 +6,6 @@ import { StudentEntity } from '../common/entities/student-entities/student.entit
 import { StudentUpdateDto } from '../common/dto/student-dto/student-update.dto';
 import { Entity, LessThan, LessThanOrEqual, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EventEntity } from 'src/common/entities/student-entities/event.entity';
 import { EventSavedEntity } from 'src/common/entities/student-entities/eventSaved.entity';
 import { StudentLoginDto } from 'src/common/dto/student-dto/student-login.dto';
 import { AuthService } from 'src/auth/auth/auth.service';
