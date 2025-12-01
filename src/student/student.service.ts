@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
 import { CreateStudentDto } from '../common/dto/student-dto/create-student.dto';
 import { StudentQueryDto } from '../common/dto/student-dto/student-query.dto';
 import { StudentEntity } from '../common/entities/student-entities/student.entity'
@@ -11,7 +11,8 @@ import { StudentLoginDto } from 'src/common/dto/student-dto/student-login.dto';
 import { AuthService } from 'src/auth/auth/auth.service';
 import { generate } from 'rxjs';
 import { MailerService } from '@nestjs-modules/mailer';
-import { Event } from 'src/common/entities/organizer-entities/event.entity';
+import { EventEntity } from 'src/common/entities/organizer-entities/event.entity';
+import { title } from 'process';
 
 @Injectable()
 export class StudentService {
@@ -20,12 +21,12 @@ export class StudentService {
      private readonly authService: AuthService, 
     @InjectRepository(StudentEntity)
     private readonly studentRepository : Repository<StudentEntity> , 
-   @InjectRepository(Event)
-  private readonly eventRepository: Repository<Event> , 
+   @InjectRepository(EventEntity)
+  private readonly eventRepository: Repository<EventEntity> , 
   @InjectRepository(EventSavedEntity) 
   private readonly eventSavedRepository : Repository<EventSavedEntity>
 ){}
-
+ 
 
    async createStudent(studentData : CreateStudentDto){
      const hashedPassword= await this.authService.hashPassword(studentData.password) ; 
@@ -134,7 +135,7 @@ export class StudentService {
 
   }
 
-  async getAllEvents(): Promise<Event[]> {
+  async getAllEvents(): Promise<EventEntity[]> {
     const allEvents = await this.eventRepository.find()
     return allEvents;
   }
@@ -148,12 +149,32 @@ export class StudentService {
   }
 
 
-
   async saveEvent(id: string, eventId: string) {
+
+        const duplicate = await this.eventSavedRepository.findOne({
+      where: {  
+        event: {eventId : Number(eventId)} , 
+        student: {studentId : id
+      }   
+      } 
+    }) ; 
+
+    if(duplicate){
+      throw new UnprocessableEntityException("Event Saved Already!!") ; 
+    }
+    
     const newSavedEvent = new EventSavedEntity();
     newSavedEvent.student = await this.getStudentById(id)
     newSavedEvent.event = await this.getEventById(Number(eventId));
-    return await this.eventSavedRepository.save(newSavedEvent);
+     await this.eventSavedRepository.save(newSavedEvent);
+     return {
+      message: "Event Saved Successfully!!" , 
+       id : newSavedEvent.savedId , 
+       studentId : newSavedEvent.student.studentId , 
+       eventId : newSavedEvent.event.eventId , 
+       title : newSavedEvent.event.eventTitle, 
+       saved_at : newSavedEvent.saved_at
+     }
   }
 
 
@@ -167,11 +188,9 @@ export class StudentService {
         relations: ['event']
       }
     )
-
     if (!savedEvents) {
       throw new NotFoundException("No Saved Events Found");
     }
-
     return savedEvents;
   }
 
