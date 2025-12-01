@@ -1,3 +1,4 @@
+import { Module } from '@nestjs/common';
 
 // @ts-ignore: temporary fix for "Module '@nestjs/config' has no exported member 'ConfigModule'"
 // If possible, update @nestjs/config types or package to resolve this properly.
@@ -13,6 +14,16 @@ import { OrganizerModule } from './organizer/organizer.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(), // to load .env file
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: process.env.DATABASE_URL,
+      autoLoadEntities: true,
+      synchronize: true
+    }),
+    AdminModule,
+    StudentModule,
+    OrganizerModule
 
       ConfigModule.forRoot(
        {
@@ -44,4 +55,4 @@ import { OrganizerModule } from './organizer/organizer.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

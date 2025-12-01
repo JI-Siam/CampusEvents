@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Event } from '../common/entities/organizer-entities/event.entity';
+import { EventEntity } from '../common/entities/organizer-entities/event.entity';
 import { Repository } from 'typeorm';
 import { CreateEventDto } from '../common/dto/organizer-dto/create-event.dto';
 import { UpdateEventDto } from '../common/dto/organizer-dto/update-event.dto';
@@ -8,7 +8,7 @@ import { UpdateEventDto } from '../common/dto/organizer-dto/update-event.dto';
 @Injectable()
 export class OrganizerService {
   constructor(
-    @InjectRepository(Event) private eventRepo: Repository<Event>,
+    @InjectRepository(EventEntity) private eventRepo: Repository<EventEntity>,
   ) {}
 
   async createEvent(dto: CreateEventDto) {
@@ -21,6 +21,7 @@ export class OrganizerService {
   }
 
   async getEvent(id: number) {
+    const event = await this.eventRepo.findOne({ where: { eventId:id } });
     const event = await this.eventRepo.findOne({ where: { eventId : id } });
 
     if (!event) {

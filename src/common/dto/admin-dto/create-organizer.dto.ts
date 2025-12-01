@@ -1,6 +1,6 @@
 import { IsString, IsEmail, IsNotEmpty, IsDateString, MinLength, IsPhoneNumber, IsInt } from 'class-validator';
 
-export class RegisterOrganizerDto {
+export class CreateOrganizerDto {
   @IsString()
   @IsNotEmpty()
   organizerName: string;
@@ -11,17 +11,17 @@ export class RegisterOrganizerDto {
 
   @IsPhoneNumber()
   @IsNotEmpty()
-  phone: string;
+  phone: string; 
 
   @IsDateString()
   @IsNotEmpty()
-  dob: string;
-
+  dob: string;  
+  
   @IsString()
   @MinLength(4)
   @IsNotEmpty()
   password: string;
-
+  
   @IsInt()
   @IsNotEmpty()
   adminId: number;

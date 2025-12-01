@@ -3,18 +3,19 @@ import { IsOptional, IsString, MinLength } from 'class-validator';
 export class UpdateEventDto {
   @IsOptional()
   @IsString()
-  title?: string;
+  eventTitle?: string;
 
   @IsOptional()
   @IsString()
   @MinLength(5)
-  description?: string;
+  eventDescription?: string;
 
   @IsOptional()
   @IsString()
-  date?: string;
+  eventDate?: string;
 
   @IsOptional()
   @IsString()
-  location?: string;
+  eventLocation?: string;
+
 }
