@@ -1,16 +1,23 @@
-import { IsString, MinLength } from 'class-validator';
+import { IsString, MinLength, IsNotEmpty, IsInt } from 'class-validator';
 
 export class CreateEventDto {
   @IsString()
-  title: string;
+  @IsNotEmpty()
+  eventTitle: string;
 
   @IsString()
   @MinLength(5)
-  description: string;
+  eventDescription: string;
 
   @IsString()
-  date: string;
+  @IsNotEmpty()
+  eventDate: string;
 
   @IsString()
-  location: string;
+  @IsNotEmpty()
+  eventLocation: string;
+
+  @IsInt()
+  @IsNotEmpty()
+  clubId: number;
 }

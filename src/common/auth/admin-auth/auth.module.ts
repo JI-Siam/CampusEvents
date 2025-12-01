@@ -2,14 +2,14 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OrganizerEntity } from 'src/common/entities/admin-entities/organizer.entity';
+import { AdminEntity } from 'src/common/entities/admin-entities/admin.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([OrganizerEntity]),
+    TypeOrmModule.forFeature([AdminEntity]),
 
     PassportModule.register({ defaultStrategy: 'jwt' }),
 
