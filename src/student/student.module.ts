@@ -7,10 +7,10 @@ import { StudentEntity } from '../common/entities/student-entities/student.entit
 import { EventSavedEntity } from 'src/common/entities/student-entities/eventSaved.entity';
 import { AuthModule } from 'src/auth/auth/auth.module';
 import { OrganizerModule } from 'src/organizer/organizer.module';
-import { Event } from 'src/common/entities/organizer-entities/event.entity';
+import { EventEntity } from 'src/common/entities/organizer-entities/event.entity';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([StudentEntity, Event, EventSavedEntity]) , AuthModule , OrganizerModule] , 
+  imports:[TypeOrmModule.forFeature([StudentEntity, EventEntity, EventSavedEntity]) , AuthModule , OrganizerModule] , 
   controllers: [StudentController],
   providers: [StudentService],
   exports: [StudentService],

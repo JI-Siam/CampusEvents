@@ -21,7 +21,6 @@ export class OrganizerService {
   }
 
   async getEvent(id: number) {
-    const event = await this.eventRepo.findOne({ where: { eventId:id } });
     const event = await this.eventRepo.findOne({ where: { eventId : id } });
 
     if (!event) {
