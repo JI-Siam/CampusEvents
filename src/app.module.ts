@@ -37,7 +37,7 @@ import { OrganizerModule } from './organizer/organizer.module';
       type:'postgres' , 
       url: process.env.DATABASE_URL, 
       autoLoadEntities:true, 
-      synchronize:true
+      synchronize:true, 
      }), 
      StudentModule, AuthModule , OrganizerModule
   ],

@@ -1,5 +1,6 @@
-import { Entity , PrimaryGeneratedColumn , Column, Unique, PrimaryColumn, CreateDateColumn, OneToMany} from "typeorm";
+import { Entity , PrimaryGeneratedColumn , Column, Unique, PrimaryColumn, CreateDateColumn, OneToMany, ManyToMany} from "typeorm";
 import { EventSavedEntity } from "./eventSaved.entity";
+import { Event } from "../organizer-entities/event.entity";
 @Entity('student')
 export class StudentEntity{
 
@@ -39,5 +40,8 @@ export class StudentEntity{
     
     @CreateDateColumn()
     created_at:  Date
+
+    @ManyToMany(()=> Event , (event) => event.students)
+    events : Event[] ; 
 
 }
