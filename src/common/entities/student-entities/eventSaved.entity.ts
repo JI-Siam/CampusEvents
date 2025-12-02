@@ -13,7 +13,7 @@ export class EventSavedEntity{
     @JoinColumn({name : "studentId"})
     student : StudentEntity; 
 
-    @ManyToOne(()=> EventEntity , (event) => event.eventsSaved)
+    @ManyToOne(()=> EventEntity , (event) => event.eventsSaved , {onDelete:'CASCADE'} )
     @JoinColumn({name : "eventId"})
     event : EventEntity;
 

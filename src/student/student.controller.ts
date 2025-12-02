@@ -2,11 +2,12 @@ import { Body, Controller, Delete, Get, Param , Patch, Post, Put, Query, UseGuar
 import { StudentService } from './student.service';
 import { CreateStudentDto } from '../common/dto/student-dto/create-student.dto';
 import { StudentQueryDto } from '../common/dto/student-dto/student-query.dto';
-import { StudentUpdateDto } from '../common/dto/student-dto/student-update.dto';
+import { StudentUpdateDto } from 'src/common/dto/student-dto/student-update.dto';
 import { StudentValidationPipe } from 'src/common/pipes/student-validation/student-validation.pipe';
 import { StudentEntity } from '../common/entities/student-entities/student.entity';
 import { StudentLoginDto } from 'src/common/dto/student-dto/student-login.dto';
 import { SupabaseAuthGuard } from 'src/auth/supabase-auth/supabase-auth.guard';
+import { StudentUpdatePutDto } from 'src/common/dto/student-dto/student-update-put.dto';
 @Controller('students')
 export class StudentController {
     constructor(private readonly studentService : StudentService){}
@@ -82,10 +83,10 @@ export class StudentController {
     }
 
 
-      @UseGuards(SupabaseAuthGuard)
-    @Put(':id')
-    UpdateStudent(@Param('id') id : string , @Body() studentInfo : StudentUpdateDto){
-        // update the student here - Using put in different case may be more natural. 
+    @UseGuards(SupabaseAuthGuard)
+    @Put('update/:id')
+    replaceStudentInfo(@Param('id') id : string , @Body() studentInfo : StudentUpdatePutDto){
+        return this.studentService.replaceStudentInfo(id , studentInfo );
     }
 
     // can a student delete himself? should this controller be here or in the admin module ? 
