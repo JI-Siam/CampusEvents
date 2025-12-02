@@ -1,9 +1,7 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
 import { CreateStudentDto } from '../common/dto/student-dto/create-student.dto';
 import { StudentQueryDto } from '../common/dto/student-dto/student-query.dto';
 import { StudentEntity } from '../common/entities/student-entities/student.entity'
-
-import { StudentUpdateDto } from '../common/dto/student-dto/student-update.dto';
 import { Entity, LessThan, LessThanOrEqual, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventSavedEntity } from 'src/common/entities/student-entities/eventSaved.entity';
@@ -13,7 +11,8 @@ import { generate } from 'rxjs';
 import { MailerService } from '@nestjs-modules/mailer';
 import { EventEntity } from 'src/common/entities/organizer-entities/event.entity';
 import { title } from 'process';
-
+import { StudentUpdateDto } from 'src/common/dto/student-dto/student-update.dto';
+import { StudentUpdatePutDto } from 'src/common/dto/student-dto/student-update-put.dto';
 @Injectable()
 export class StudentService {
    constructor(
@@ -49,7 +48,7 @@ export class StudentService {
    async loginStudent(studentLoginDto : StudentLoginDto){
      const student =  await this.studentRepository.findOneBy({email :studentLoginDto.email}) ; 
      if(!student){
-        throw new NotFoundException("Student Not Found !!") ; 
+       throw new HttpException('Student not found', HttpStatus.NOT_FOUND);
      }
 
      const {name , studentId, email , password} = student; 
@@ -153,7 +152,7 @@ export class StudentService {
   }
 
 
-  async updateStudent(studentId: string, updatedStudentInfo: StudentUpdateDto): Promise<StudentEntity> {
+  async updateStudent(studentId: string, updatedStudentInfo: StudentUpdateDto) {
     const student = await this.studentRepository.findOneBy({ studentId })
     const updatedStudent = { ...student }
 
@@ -174,11 +173,25 @@ export class StudentService {
 
 
 
-  deleteStudent(id: string) {
-    const student = this.getStudentById(id)
-    // delete the student here . 
+  async replaceStudentInfo(studentId: string, updatedStudentInfo: StudentUpdatePutDto) {
+    const student = await this.studentRepository.findOneBy({ studentId })
+    const updatedStudent = { ...student }
+
+    console.log("Found Student : ", student)
+    console.log("Updated Initial Student : ", student)
+
+    for (const key in updatedStudentInfo) {
+      if (updatedStudentInfo[key] !== undefined) {
+        updatedStudent[key] = updatedStudentInfo[key]
+      }
+    }
+
+    console.log("Updated Student : ", updatedStudent)
+
+    return await this.studentRepository.save(updatedStudent)
 
   }
+
 
   async getAllEvents(): Promise<EventEntity[]> {
     const allEvents = await this.eventRepository.find()
@@ -236,7 +249,16 @@ export class StudentService {
     if (!savedEvents) {
       throw new NotFoundException("No Saved Events Found");
     }
-    return savedEvents;
+    return {
+      eventId : savedEvents[0].event.eventId , 
+      Title : savedEvents[0].event.eventTitle
+    }
+  }
+
+    deleteStudent(id: string) {
+    const student = this.getStudentById(id)
+    // delete the student here . 
+
   }
 
 

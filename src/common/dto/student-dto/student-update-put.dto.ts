@@ -1,40 +1,33 @@
 import { IsBoolean, IsIn, IsNumber, IsOptional, IsString, Matches, Max, Min, MinLength } from "class-validator"
 
-export class StudentUpdateDto{
-    @IsOptional()
+export class StudentUpdatePutDto{
+ 
     @IsString()
     @MinLength(3)
     @Matches(/^[a-z A-Z]+$/)
-     name? : string 
+     name : string 
 
-
-    @IsOptional() 
     @IsString() 
-    gender?:string
+    gender:string
 
-
-    @IsOptional() 
     @IsString()
-    department? : string
+    department: string
 
-    @IsOptional() 
     @IsNumber()
     @Min(1)
     @Max(12)
-    semester? : number
+    semester : number
 
-    @IsOptional() 
     @IsString() 
     @Matches(/^01[0-9]{9}$/)
-    phoneNumber? : string
+    phoneNumber : string
     
 
-    @IsOptional()
     @IsBoolean()
-    notification?: boolean ;
-
-    @IsOptional() 
+    notification: boolean ;
+    
+    @IsString()
     @IsIn(['active', 'inactive'])
-    status?: string ; 
+    status: string;
 
 }
