@@ -72,7 +72,37 @@ export class StudentService {
         }
    }
 
+   async checkAlreadyJoined(studentId : string , eventId : string){
+
+    const student = await this.studentRepository.findOne({
+    where: { studentId },
+    relations: ['events'],
+  });
+
+  const event = await this.eventRepository.findOne({
+    where: { eventId : Number(eventId)}
+  });
+
+  if (!student || !event) {
+    throw new NotFoundException('Student or event not found');
+  }
+
+  const alreadyJoined = student.events.some(e => e.eventId === Number(eventId));
+
+  if (alreadyJoined) {
+    return {
+      isJoined: true
+    }
+  }
+
+  return {
+    isJoined : false 
+  }
+
+   }
+
    async joinEvent(studentId : string , eventId : string){
+    console.log("Backend Joind Event Running")
        const student = await this.studentRepository.findOne({
     where: { studentId },
     relations: ['events'],
@@ -206,6 +236,39 @@ export class StudentService {
     return event;
   }
 
+  async getEventDetailsById(id: number) {
+    const event = await this.eventRepository.findOne({
+      where: { eventId: id },
+      relations: ['clubs']
+    });
+    
+    if (!event) {
+      throw new NotFoundException("No Event Found !!")
+    }
+    
+    return event;
+  }
+
+  async checkEventSaved(id: string, eventId: string){
+    console.log(id + " " + eventId) ;
+     const duplicate = await this.eventSavedRepository.findOne({
+      where: {  
+        event: {eventId : Number(eventId)} , 
+        student: {studentId : id
+      }   
+      } 
+    }) ; 
+    if(duplicate){
+      return {
+        isSaved: true 
+      }
+
+    }
+   return {
+        isSaved: false
+      }
+  }
+
 
   async saveEvent(id: string, eventId: string) {
 
@@ -250,8 +313,7 @@ export class StudentService {
       throw new NotFoundException("No Saved Events Found");
     }
     return {
-      eventId : savedEvents[0].event.eventId , 
-      Title : savedEvents[0].event.eventTitle
+      savedEvents
     }
   }
 

@@ -44,8 +44,7 @@ export class StudentValidationPipe implements PipeTransform {
 
       if(errors.length >=1 ){
         throw new BadRequestException({
-          message: "Valadiation Failed !!"  , 
-          errors
+          message: errors
         })
       }
 

@@ -8,7 +8,7 @@ import { StudentEntity } from '../common/entities/student-entities/student.entit
 import { StudentLoginDto } from 'src/common/dto/student-dto/student-login.dto';
 import { SupabaseAuthGuard } from 'src/auth/supabase-auth/supabase-auth.guard';
 import { StudentUpdatePutDto } from 'src/common/dto/student-dto/student-update-put.dto';
-@Controller('students')
+@Controller('student')
 export class StudentController {
     constructor(private readonly studentService : StudentService){}
 
@@ -25,13 +25,15 @@ export class StudentController {
 
     @UseGuards(SupabaseAuthGuard)
     @Post('events/save/:id') 
-    saveEvent(@Param('id') id : string , @Query('eventId') eventId : string){
-        return this.studentService.saveEvent(id , eventId)
+    saveEvent(@Body('studentId') studentId : string , @Param('id') eventId : string){
+        return this.studentService.saveEvent(studentId , eventId) ; 
     }
 
     @UseGuards(SupabaseAuthGuard)
     @Post('events/markjoining/:id') 
-    joinEvent (@Param('id') studentId : string , @Query('eventId') eventId : string ){
+    joinEvent (@Body('studentId') studentId : string , @Param('id') eventId : string ){
+      console.log("studetn Id " + studentId) ; 
+      console.log("eventId " + eventId);
       return this.studentService.joinEvent(studentId , eventId) ; 
     }
 
@@ -42,6 +44,13 @@ export class StudentController {
       return this.studentService. markFavClub(studentId , clubId) ; 
     }
 
+    // Backend route
+    @Get('verify')
+    @UseGuards(SupabaseAuthGuard)
+    async verifyToken() {
+      return {valid: true};
+    }
+
 
     @UseGuards(SupabaseAuthGuard)
     @Get()
@@ -49,7 +58,19 @@ export class StudentController {
        return this.studentService.getAllStudent()
     }
 
-      @UseGuards(SupabaseAuthGuard)
+
+
+    @Get('data')
+    getData(){
+      const info = {
+        name : 'Jafir Islam Siam' , 
+        id : '123' , 
+        semester :'10'
+      }
+      return info; 
+    }
+
+     // @UseGuards(SupabaseAuthGuard)
      @Get('events')
    async getAllEvents(){
        // Inject the events service class here and then use this to get all the events. 
@@ -57,19 +78,46 @@ export class StudentController {
       return await this.studentService.getAllEvents()
     }
 
+    @UseGuards(SupabaseAuthGuard)
+    @Get('event/details/:id')
+    async getEventDetails(@Param('id') eventId : any){
+      return await this.studentService.getEventDetailsById(eventId) ; 
+    }
+
+
+        @Get('event/checkSaved/:eventId')
       @UseGuards(SupabaseAuthGuard)
-    @Get('events/saved/:id')
-    getAllSavedEvents(@Param('id') id : string){
+      async checkSaved(
+        @Param('eventId') eventId: string, 
+        @Query('studentId') studentId: string
+      ) {
+        
+        return this.studentService.checkEventSaved( studentId,  eventId);
+      }
+
+       @Get('event/checkJoined/:eventId')
+      @UseGuards(SupabaseAuthGuard)
+      async checkAlreadyJoined(
+        @Param('eventId') eventId: string, 
+        @Query('studentId') studentId: string
+      ) {
+        
+        return this.studentService.checkAlreadyJoined( studentId,  eventId);
+      }
+
+
+      @UseGuards(SupabaseAuthGuard)
+    @Get('events/saved')
+    getAllSavedEvents(@Query('studentId') id : string){
         return this.studentService.getAllSavedEvents(id)
     }
 
       @UseGuards(SupabaseAuthGuard)
-    @Get('events/joining/:id') 
-    getJoiningEvents (@Param('id') studentId : string ){
+    @Get('events/joining') 
+    getJoiningEvents (@Query('studentId') studentId : string ){
       return this.studentService.getJoiningEvents(studentId) ; 
     }
 
-  
       @UseGuards(SupabaseAuthGuard)
     @Get(':id')
     getStudent(@Param('id') studentId : string , @Query() query : StudentQueryDto){
@@ -100,8 +148,8 @@ export class StudentController {
 
     @UseGuards(SupabaseAuthGuard)
     @Delete('events/saved/delete/:id')
-     async removeSavedEvent(@Param('id') id : string , @Query('eventId') eventId : string){
-       return await this.studentService.removeSavedEvent(id , eventId)
+     async removeSavedEvent(@Body('studentId') studentId : string , @Param('id') eventId : string){
+       return await this.studentService.removeSavedEvent(studentId , eventId)
     }
 
 
