@@ -12,6 +12,7 @@ import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { OrganizerModule } from './organizer/organizer.module';
 import { AdminModule } from './admin/admin.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AdminModule } from './admin/admin.module';
     }),
     AdminModule,
     StudentModule,
+    NotificationsModule,
     OrganizerModule , 
 
       ConfigModule.forRoot(

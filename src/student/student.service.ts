@@ -13,11 +13,13 @@ import { EventEntity } from 'src/common/entities/organizer-entities/event.entity
 import { title } from 'process';
 import { StudentUpdateDto } from 'src/common/dto/student-dto/student-update.dto';
 import { StudentUpdatePutDto } from 'src/common/dto/student-dto/student-update-put.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
 @Injectable()
 export class StudentService {
    constructor(
     private readonly mailerService:MailerService, 
      private readonly authService: AuthService, 
+     private readonly notificationsService: NotificationsService,
     @InjectRepository(StudentEntity)
     private readonly studentRepository : Repository<StudentEntity> , 
    @InjectRepository(EventEntity)
@@ -72,7 +74,37 @@ export class StudentService {
         }
    }
 
+   async checkAlreadyJoined(studentId : string , eventId : string){
+
+    const student = await this.studentRepository.findOne({
+    where: { studentId },
+    relations: ['events'],
+  });
+
+  const event = await this.eventRepository.findOne({
+    where: { eventId : Number(eventId)}
+  });
+
+  if (!student || !event) {
+    throw new NotFoundException('Student or event not found');
+  }
+
+  const alreadyJoined = student.events.some(e => e.eventId === Number(eventId));
+
+  if (alreadyJoined) {
+    return {
+      isJoined: true
+    }
+  }
+
+  return {
+    isJoined : false 
+  }
+
+   }
+
    async joinEvent(studentId : string , eventId : string){
+    console.log("Backend Joind Event Running")
        const student = await this.studentRepository.findOne({
     where: { studentId },
     relations: ['events'],
@@ -94,6 +126,11 @@ export class StudentService {
 
   student.events.push(event);
   await this.studentRepository.save(student) ; 
+
+  await this.notificationsService.trigger('events-channel', 'join-event', {
+    message: `Hooray!! ${student.name} successfully joined ${event.eventTitle}`,
+    studentId: studentId
+  });
 
   return {
     message: `Student ${student.studentId} joining event ${event.eventTitle}`
@@ -206,6 +243,39 @@ export class StudentService {
     return event;
   }
 
+  async getEventDetailsById(id: number) {
+    const event = await this.eventRepository.findOne({
+      where: { eventId: id },
+      relations: ['clubs']
+    });
+    
+    if (!event) {
+      throw new NotFoundException("No Event Found !!")
+    }
+    
+    return event;
+  }
+
+  async checkEventSaved(id: string, eventId: string){
+    console.log(id + " " + eventId) ;
+     const duplicate = await this.eventSavedRepository.findOne({
+      where: {  
+        event: {eventId : Number(eventId)} , 
+        student: {studentId : id
+      }   
+      } 
+    }) ; 
+    if(duplicate){
+      return {
+        isSaved: true 
+      }
+
+    }
+   return {
+        isSaved: false
+      }
+  }
+
 
   async saveEvent(id: string, eventId: string) {
 
@@ -250,8 +320,7 @@ export class StudentService {
       throw new NotFoundException("No Saved Events Found");
     }
     return {
-      eventId : savedEvents[0].event.eventId , 
-      Title : savedEvents[0].event.eventTitle
+      savedEvents
     }
   }
 
