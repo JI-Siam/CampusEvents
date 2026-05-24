@@ -13,11 +13,13 @@ import { EventEntity } from 'src/common/entities/organizer-entities/event.entity
 import { title } from 'process';
 import { StudentUpdateDto } from 'src/common/dto/student-dto/student-update.dto';
 import { StudentUpdatePutDto } from 'src/common/dto/student-dto/student-update-put.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
 @Injectable()
 export class StudentService {
    constructor(
     private readonly mailerService:MailerService, 
      private readonly authService: AuthService, 
+     private readonly notificationsService: NotificationsService,
     @InjectRepository(StudentEntity)
     private readonly studentRepository : Repository<StudentEntity> , 
    @InjectRepository(EventEntity)
@@ -124,6 +126,11 @@ export class StudentService {
 
   student.events.push(event);
   await this.studentRepository.save(student) ; 
+
+  await this.notificationsService.trigger('events-channel', 'join-event', {
+    message: `Hooray!! ${student.name} successfully joined ${event.eventTitle}`,
+    studentId: studentId
+  });
 
   return {
     message: `Student ${student.studentId} joining event ${event.eventTitle}`
